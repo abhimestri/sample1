@@ -10,6 +10,12 @@ class MainBlock extends Component{
         message : null
     }
 
+    recheckingSubmission = (id) => {
+        axios.get("https://petstore.swagger.io/v2/pet"+id)
+            .then(el => console.log(el))
+            .catch(err => console.log(err))
+        }
+
     submitData = () => {
         let data = {
             petName : this.state.petName,
@@ -19,9 +25,15 @@ class MainBlock extends Component{
             this.setState({message : "Please enter the details"})
         }else{
         axios.post("https://petstore.swagger.io/v2/pet", data)
-                .then(el => console.log(JSON.parse(el.config.data)))
+                .then(el => {
+                    console.log(JSON.parse(el.config.data))
+                    console.log(el.status);
+                    if(el.status !== 200){
+                        this.recheckingSubmission(data.petId);
+                    }
+                })
                 .then(() => this.setState({message : "Data successfully submited!"}))
-                .catch(el => this.setState({message : "Data submission unsuccessful : " + el.message}));
+                .catch(err => this.setState({message : "Data submission unsuccessful : " + err.message}));
         }
     }
 
